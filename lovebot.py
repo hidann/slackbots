@@ -87,4 +87,4 @@ if __name__ == "__main__":
                     slack_client.api_call("chat.postMessage", channel=channel, text=response_global, as_user=True)
             time.sleep(READ_WEBSOCKET_DELAY)
     else:
-        print("Давай по новой, Миша, все [NormeError]!(Connection failed. Invalid Slack token or bot ID?)")
+        print("Давай по новой, Миша, все [NormeError]! (Connection failed. Invalid Slack token or bot ID?)")
