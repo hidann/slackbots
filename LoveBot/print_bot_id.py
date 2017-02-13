@@ -17,3 +17,4 @@ if __name__ == "__main__":
                 print("Bot ID for '" + user['name'] + "' is " + user.get('id'))
     else:
         print("Could not find bot user with the name " + BOT_NAME)
+
