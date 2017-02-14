@@ -70,8 +70,12 @@ def valentinka(command, channel):
             r = 1
             dataEntry(xlogin, message)
     if "D" in channel[0]:
-       slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
-       if r == 1:
+        slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+        if r == 0:
+            slack_client.api_call("reactions.add", name="wat", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="buserror", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="broken_heart", channel=channel, timestamp=id_message)
+        else:
             slack_client.api_call("reactions.add", name="sparkling_heart", channel=channel, timestamp=id_message)
             slack_client.api_call("reactions.add", name="success", channel=channel, timestamp=id_message)
             slack_client.api_call("reactions.add", name="kissing_heart", channel=channel, timestamp=id_message)
@@ -94,6 +98,9 @@ def parse_slack_output(slack_rtm_output):
                     return output['text'].split(AT_BOT)[1].strip() + output['ts'], output['channel']
                 if len(output['text']) > 0 and not BOT_ID in output['user'] and "D" in output['channel'][0]:
                     slack_client.api_call("chat.postMessage", channel=output['channel'], text=response_global, as_user=True)
+                    slack_client.api_call("reactions.add", name="wat", channel=output['channel'], timestamp=output['ts'])
+                    slack_client.api_call("reactions.add", name="buserror", channel=output['channel'], timestamp=output['ts'])
+                    slack_client.api_call("reactions.add", name="broken_heart", channel=output['channel'], timestamp=output['ts'])
     return None, None
 
 if __name__ == "__main__":
