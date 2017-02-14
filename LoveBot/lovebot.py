@@ -34,6 +34,14 @@ def dataEntry(xlogin, message):
 # валідація валентинки і запис адресата і повідомлення в БД
 def valentinka(command, channel):
     response = response_global
+    id_message = ""
+    t = 0
+    z = len(command) - 17
+    while t < 17:
+        id_message += command[z]
+        z += 1
+        t += 1
+    r = 0
     if command.startswith(EXAMPLE_COMMAND + ' ' + "<@"):
         i = 0
         k = 0
@@ -59,8 +67,23 @@ def valentinka(command, channel):
                 message += command[j]
                 j += 1
             response = "*Cool!* :sparkling_heart:\nВаша валентинка :gift_heart: буде надіслана отримувачу 14 лютого :blush:\n:kiss:"
+            r = 1
             dataEntry(xlogin, message)
-    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+    if "D" in channel[0]:
+       slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+       if r == 1:
+            slack_client.api_call("reactions.add", name="sparkling_heart", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="success", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="kissing_heart", channel=channel, timestamp=id_message)
+    else:
+        if r == 0:
+            slack_client.api_call("reactions.add", name="wat", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="buserror", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="broken_heart", channel=channel, timestamp=id_message)
+        else:
+            slack_client.api_call("reactions.add", name="sparkling_heart", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="success", channel=channel, timestamp=id_message)
+            slack_client.api_call("reactions.add", name="kissing_heart", channel=channel, timestamp=id_message)
 
 def parse_slack_output(slack_rtm_output):
     output_list = slack_rtm_output
@@ -68,7 +91,7 @@ def parse_slack_output(slack_rtm_output):
         for output in output_list:
             if output and 'text' in output:
                 if AT_BOT in output['text'] and EXAMPLE_COMMAND in output['text'] and "@" in output['text'][1]:
-                    return output['text'].split(AT_BOT)[1].strip(), output['channel']
+                    return output['text'].split(AT_BOT)[1].strip() + output['ts'], output['channel']
                 if len(output['text']) > 0 and not BOT_ID in output['user'] and "D" in output['channel'][0]:
                     slack_client.api_call("chat.postMessage", channel=output['channel'], text=response_global, as_user=True)
     return None, None
@@ -84,8 +107,8 @@ if __name__ == "__main__":
                 if command and channel:
                     valentinka(command, channel)
                 else:
-                    slack_client.api_call("chat.postMessage", channel=channel, text=response_global, as_user=True)
+                    if "D" in channel[0]:
+                        slack_client.api_call("chat.postMessage", channel=channel, text=response_global, as_user=True)
             time.sleep(READ_WEBSOCKET_DELAY)
     else:
-        print("Давай по новой, Миша, все [NormeError]! (Connection failed. Invalid Slack token or bot ID?)")
-
+        print("Давай по новой, Миша, все [NormeError]!(Connection failed. Invalid Slack token or bot ID?)")
